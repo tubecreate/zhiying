@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams AI — ZhiYing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/teams.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="/static/furniture3d.js?v=20260327"></script>
+</head>
+<body>
+<div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">⚡ ZhiYing</div>
+            <a href="/dashboard" class="back-link">← Dashboard</a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">
+                <span>🏛️ Teams</span>
+                <button class="btn-icon" onclick="showCreateModal()" title="Create Team">+</button>
+            </div>
+            <div id="teams-list" class="teams-list">
+                <div class="empty-state">Loading...</div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">📋 Task Log</div>
+            <div id="task-log" class="task-log">
+                <div class="empty-state">No tasks yet</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- Empty State -->
+        <div id="empty-main" class="empty-main">
+            <div class="empty-icon">🏛️</div>
+            <h2>Teams AI</h2>
+            <p>Create a team to organize your agents into powerful hierarchical structures</p>
+            <button class="btn-primary btn-lg" onclick="showCreateModal()">+ Create Team</button>
+        </div>
+
+        <!-- Team Detail View -->
+        <div id="team-detail" class="team-detail" style="display:none;">
+            <div class="detail-header">
+                <div class="detail-title">
+                    <h1 id="detail-name"></h1>
+                    <span id="detail-template" class="tag"></span>
+                    <span id="detail-strategy" class="tag tag-purple"></span>
+                </div>
+                <div class="detail-actions">
+                    <a href="/studio" class="btn-secondary" style="text-decoration:none">🎨 Studio</a>
+                    <button class="btn-secondary" onclick="showOrgChartModal()">📊 Sơ đồ tổ chức</button>
+                    <button class="btn-secondary" onclick="showDelegatePanel()">🎯 Giao việc</button>
+                    <button class="btn-danger" onclick="deleteCurrentTeam()">🗑️ Xóa</button>
+                </div>
+            </div>
+            <p id="detail-desc" class="detail-desc"></p>
+
+            <!-- 3D Office View -->
+            <div class="office-3d-container" id="office-3d-container">
+                <div class="office-3d-header">
+                    <h3>🏢 Văn Phòng 3D</h3>
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <span class="office-hint">Kéo chuột để xoay · Cuộn để zoom</span>
+                        <button onclick="toggle3DFullscreen()" class="btn-fullscreen" title="Toàn màn hình">⛶</button>
+                    </div>
+                </div>
+                <div id="office-3d-canvas" class="office-3d-canvas"></div>
+            </div>
+
+            <!-- Delegation Results -->
+            <div id="delegation-results" class="delegation-results" style="display:none;">
+                <h3>🎯 Delegation Results</h3>
+                <div id="results-content"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Create Team Modal -->
+<div class="modal-overlay" id="create-modal" onclick="if(event.target===this) closeCreateModal()">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h2>🏛️ Create Team</h2>
+            <button class="btn-close" onclick="closeCreateModal()">✕</button>
+        </div>
+
+        <!-- Step 1: Choose Template -->
+        <div id="step-template" class="step-content">
+            <p class="step-desc">Choose an organizational template:</p>
+            <div id="templates-grid" class="templates-grid"></div>
+        </div>
+
+        <!-- Step 2: Configure & Assign Agents -->
+        <div id="step-configure" class="step-content" style="display:none;">
+            <div class="form-group">
+                <label>Team Name</label>
+                <input type="text" id="team-name-input" class="input" placeholder="My Team">
+            </div>
+            <p class="step-desc">Assign agents to roles (optional — you can assign later):</p>
+            <div id="role-assignments" class="role-assignments"></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="backToTemplates()">← Back</button>
+                <button class="btn-primary" onclick="createTeamFromTemplate()">✓ Create Team</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delegate Task Modal -->
+<div class="modal-overlay" id="delegate-modal" onclick="if(event.target===this) closeDelegatePanel()">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-header">
+            <h2>🎯 Delegate Task</h2>
+            <button class="btn-close" onclick="closeDelegatePanel()">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Task Description</label>
+            <textarea id="delegate-task-input" class="input textarea" rows="5" placeholder="Describe the task to delegate to this team..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeDelegatePanel()">Cancel</button>
+            <button class="btn-primary" id="btn-delegate" onclick="delegateTask()">🚀 Delegate</button>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Agent Modal -->
+<div class="modal-overlay" id="assign-modal" onclick="if(event.target===this) closeAssignModal()" style="z-index:1100">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-header">
+            <h2>🤖 Gán Agent cho vai trò</h2>
+            <button class="btn-close" onclick="closeAssignModal()">✕</button>
+        </div>
+        <div style="margin-bottom:16px; padding:12px; background:var(--bg); border-radius:8px; border:1px solid var(--card-border);">
+            <div id="assign-role-name" style="font-weight:700; font-size:16px; margin-bottom:4px;"></div>
+            <div id="assign-role-desc" style="font-size:12px; color:var(--text3);"></div>
+        </div>
+        <div class="form-group">
+            <label>Chọn Agent</label>
+            <select id="assign-agent-select" class="input"></select>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeAssignModal()">Hủy</button>
+            <button class="btn-primary" onclick="saveAssignment()">✓ Lưu</button>
+        </div>
+    </div>
+</div>
+
+<!-- Org Chart Modal -->
+<div class="modal-overlay" id="orgchart-modal" onclick="if(event.target===this) closeOrgChartModal()" style="z-index:1050">
+    <div class="modal-dialog" style="width:860px; max-width:95vw;">
+        <div class="modal-header">
+            <h2>📊 Sơ đồ tổ chức</h2>
+            <button class="btn-close" onclick="closeOrgChartModal()">✕</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+            <button class="btn-primary" onclick="addOrgNode()" style="font-size:12px;padding:6px 14px;">➕ Thêm vai trò</button>
+            <button class="btn-secondary" onclick="addOrgChildNode()" style="font-size:12px;padding:6px 14px;" id="btn-add-child" disabled title="Chọn 1 node trước">➕ Thêm cấp dưới</button>
+            <span style="flex:1"></span>
+            <span style="font-size:11px;color:var(--text3);">Bấm 🖉 để sửa · 🗑 để xóa · Bấm node để gán agent</span>
+        </div>
+        <div id="org-chart" class="org-chart"></div>
+    </div>
+</div>
+
+<!-- Edit Node Modal -->
+<div class="modal-overlay" id="editnode-modal" onclick="if(event.target===this) closeEditNodeModal()" style="z-index:1200">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-header">
+            <h2>✏️ Chỉnh sửa vai trò</h2>
+            <button class="btn-close" onclick="closeEditNodeModal()">✕</button>
+        </div>
+        <div class="form-group">
+            <label>Tên vai trò</label>
+            <input id="edit-node-role" class="input" placeholder="VD: Product Manager">
+        </div>
+        <div class="form-group" style="display:flex;gap:12px;">
+            <div style="flex:0 0 80px;">
+                <label>Emoji</label>
+                <input id="edit-node-emoji" class="input" placeholder="🤖" style="text-align:center;font-size:20px;">
+            </div>
+            <div style="flex:1;">
+                <label>Tầng (layer)</label>
+                <input id="edit-node-layer" type="number" class="input" min="0" max="10" value="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Mô tả</label>
+            <textarea id="edit-node-desc" class="input" rows="2" placeholder="Mô tả vai trò..."></textarea>
+        </div>
+        <input type="hidden" id="edit-node-id">
+        <div class="modal-footer">
+            <button class="btn-danger" onclick="deleteEditingNode()" style="margin-right:auto;">🗑 Xóa</button>
+            <button class="btn-secondary" onclick="closeEditNodeModal()">Hủy</button>
+            <button class="btn-primary" onclick="saveEditNode()">✓ Lưu</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container" class="toast-container"></div>
+
+<script src="/static/teams3d.js?v=202603291410"></script>
+<script src="/static/teams.js?v=202603291410"></script>
+</body>
+</html>
