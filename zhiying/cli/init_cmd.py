@@ -43,11 +43,11 @@ def init_cmd(lang):
     from zhiying.core.agent import agent_manager
     if not agent_manager.get_all():
         agent_manager.create(
-            name="Personal Assistant",
-            description="General purpose AI assistant",
-            system_prompt="You are a helpful AI assistant. Respond concisely.",
+            name="个人助理",
+            description="通用 AI 助手",
+            system_prompt="你是一个乐于助人的 AI 助手，请尽可能简明扼要地回答问题。",
         )
-        console.print(t("init.created_agent", name="Personal Assistant"))
+        console.print(t("init.created_agent", name="个人助理"))
 
     # 4. Enable default extensions
     console.print(t("init.enabling_extensions"))
