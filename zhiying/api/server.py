@@ -1192,6 +1192,62 @@ async def update_extension(name: str):
         raise HTTPException(500, f"Extension update failed: {e}")
 
 
+# ── Aggregated i18n (per-extension locales) ─────────────────────────
+
+@app.get("/api/v1/i18n/{lang}")
+async def get_aggregated_i18n(lang: str):
+    """Aggregate locale files from ALL extensions into a single flat dict.
+    Scans both built-in extensions and external extensions directories.
+    """
+    import re
+    import json
+    import os
+
+    # Sanitize lang
+    if not re.match(r'^[a-z]{2}(-[A-Z]{2})?$', lang):
+        lang = "zh"
+
+    merged = {}
+
+    def _load_locales_from_dir(base_dir):
+        """Scan a directory for subdirectories containing locales/."""
+        if not os.path.isdir(base_dir):
+            return
+        for entry in os.listdir(base_dir):
+            ext_dir = os.path.join(base_dir, entry)
+            if not os.path.isdir(ext_dir):
+                continue
+            locales_dir = os.path.join(ext_dir, "locales")
+            if not os.path.isdir(locales_dir):
+                continue
+            for try_lang in [lang, "en"]:
+                locale_path = os.path.join(locales_dir, f"{try_lang}.json")
+                if os.path.isfile(locale_path):
+                    try:
+                        with open(locale_path, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                        merged.update(data)
+                    except Exception:
+                        pass
+                    break
+
+    # 1. Built-in extensions: zhiying/extensions/*/locales/
+    builtin_ext_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "extensions")
+    _load_locales_from_dir(builtin_ext_dir)
+
+    # 2. External extensions: data/extensions_external/*/locales/
+    from zhiying.config import EXTENSIONS_EXTERNAL_DIR
+    _load_locales_from_dir(str(EXTENSIONS_EXTERNAL_DIR))
+
+    merged["_DEBUG"] = {
+        "__file__": __file__,
+        "builtin_ext_dir": builtin_ext_dir,
+        "external_ext_dir": str(EXTENSIONS_EXTERNAL_DIR)
+    }
+
+    return merged
+
+
 # ── Language Settings ────────────────────────────────────────────────
 
 class LanguageUpdateRequest(BaseModel):

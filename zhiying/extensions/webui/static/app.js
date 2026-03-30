@@ -79,14 +79,14 @@ async function loadDashboard() {
 // ═══ EXTENSIONS (All features as clickable cards) ═══
 // ═══════════════════════════════════════════════════════════
 const EXT_REGISTRY = [
-    { id:'agents', icon:'🤖', name:T('nav.dashboard'), desc:T('ext.agents_desc'), type:'core' },
-    { id:'browser', icon:'🌐', name:T('stat.profiles'), desc:T('ext.browser_desc'), type:'core' },
-    { id:'workflows', icon:'🔄', name:T('stat.workflows'), desc:T('ext.workflows_desc'), type:'core' },
-    { id:'skills', icon:'⚡', name:T('stat.skills'), desc:T('ext.skills_desc'), type:'core' },
-    { id:'market', icon:'🛍️', name:'Marketplace', desc:'Khám phá và cài đặt extension từ cộng đồng', type:'core' },
-    { id:'cloud_api', icon:'☁️', name:T('dash.cloud_api_keys'), desc:T('ext.cloud_api_desc'), type:'extension' },
-    { id:'ollama', icon:'🧠', name:'Ollama Manager', desc:T('ext.ollama_desc'), type:'extension' },
-    { id:'multi_agents', icon:'👥', name:'Multi-Agents', desc:T('ext.multi_agents_desc'), type:'extension' },
+    { id:'agents', icon:'🤖', name:'nav.dashboard', desc:'ext.agents_desc', type:'core' },
+    { id:'browser', icon:'🌐', name:'stat.profiles', desc:'ext.browser_desc', type:'core' },
+    { id:'workflows', icon:'🔄', name:'stat.workflows', desc:'ext.workflows_desc', type:'core' },
+    { id:'skills', icon:'⚡', name:'stat.skills', desc:'ext.skills_desc', type:'core' },
+    { id:'market', icon:'🛍️', name:'Marketplace', desc:'ext.market_desc', type:'core' },
+    { id:'cloud_api', icon:'☁️', name:'dash.cloud_api_keys', desc:'ext.cloud_api_desc', type:'extension' },
+    { id:'ollama', icon:'🧠', name:'Ollama Manager', desc:'ext.ollama_desc', type:'extension' },
+    { id:'multi_agents', icon:'👥', name:'Multi-Agents', desc:'ext.multi_agents_desc', type:'extension' },
     { id:'downloader', icon:'📥', name:'Douyin Downloader', desc:'Download TikTok & Douyin videos', type:'extension' },
     { id:'video_editor', icon:'🎬', name:'Video Editor', desc:'AI-powered Video Editor with Timeline & FFmpeg', type:'extension' },
 ];
@@ -122,9 +122,9 @@ async function loadExtensions() {
 
         return `<div class="card ext-card" onclick="openExtDetail('${ext.id}')" style="${!isEnabled ? 'opacity:0.5' : ''}">
             <div class="card-icon">${ext.icon}</div>
-            <h3>${esc(ext.name)}</h3>
+            <h3>${esc(T(ext.name))}</h3>
             <p class="card-meta">v${esc(version)} · ${esc(displayType)}</p>
-            <p class="card-desc">${esc(ext.desc)}</p>
+            <p class="card-desc">${esc(T(ext.desc))}</p>
             <div class="card-footer" style="margin-top:10px;gap:8px">${footerHtml}</div>
         </div>`;
     }).join('');

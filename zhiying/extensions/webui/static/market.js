@@ -25,22 +25,9 @@ let categoriesData = null;
 
 // ── Init ──
 document.addEventListener('DOMContentLoaded', async () => {
-    // Fetch current language from server (works correctly inside iframe)
-    try {
-        const r = await fetch('/api/v1/settings/language');
-        const d = await r.json();
-        if (d && d.language) {
-            _marketLang = d.language;
-            // Sync with i18n.js _lang variable if available
-            if (typeof _lang !== 'undefined') _lang = _marketLang;
-        }
-    } catch(e) { /* keep default */ }
-
-    // Apply translations to all data-i18n elements
-    if (typeof applyI18n === 'function') {
-        if (typeof _lang !== 'undefined') _lang = _marketLang;
-        applyI18n();
-    }
+    await loadI18nFromApi();
+    // Sync market-specific lang variable
+    _marketLang = _lang || localStorage.getItem('zhiying_lang') || 'zh';
 
     loadCategories();
     loadItems();
@@ -116,9 +103,11 @@ function renderItems(items) {
 
     loading.style.display = 'none';
 
-    // Update result count
     const countEl = document.getElementById('vsx-result-count');
-    if (countEl) countEl.textContent = `${items.length} Result${items.length !== 1 ? 's' : ''}`;
+    if (countEl) {
+        countEl.innerHTML = `${items.length} <span data-i18n="market.results">Kết quả</span>`;
+        if (typeof applyI18n === 'function') applyI18n();
+    }
 
     if (!items.length) {
         grid.style.display = 'none';

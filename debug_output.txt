@@ -1,0 +1,25 @@
+Total extensions: 11
+  webui: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\webui
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  market: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\market
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  cloud_api: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\cloud_api
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  ollama: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\ollama_manager
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  multi_agents: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\multi_agents
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  browser: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\browser
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  studio3d: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\studio3d
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  downloader: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\downloader
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  auth_manager: type=system, dir=C:\tubecreate-vue\zhiying\zhiying\extensions\auth_manager
+    -> locales: ['en.json', 'vi.json', 'zh.json']
+  video_downloader: type=external, dir=C:\tubecreate-vue\zhiying\data\extensions_external\video_downloader__8rw2tdzbos
+    -> locales: ['en.json', 'vi.json']
+  video_editor: type=external, dir=C:\tubecreate-vue\zhiying\data\extensions_external\video_editor
+    -> NO locales/ dir
+
+i18n keys: 0
