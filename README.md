@@ -1,13 +1,13 @@
-# ⚡ TubeCLI — 终极开源 AI Agents 生态协同系统
+# ⚡ ZhiYing — 终极开源 AI Agents 生态协同系统
 
 <p align="center">
-    <a href="https://github.com/tubecreate/tubecli">
-        <img src="https://img.shields.io/github/stars/tubecreate/tubecli?style=for-the-badge&color=2a2a2a&labelColor=1a1a1a" alt="Stars" />
+    <a href="https://github.com/tubecreate/zhiying">
+        <img src="https://img.shields.io/github/stars/tubecreate/zhiying?style=for-the-badge&color=2a2a2a&labelColor=1a1a1a" alt="Stars" />
     </a>
-    <a href="https://github.com/tubecreate/tubecli">
-        <img src="https://img.shields.io/github/forks/tubecreate/tubecli?style=for-the-badge&color=1e7b85&labelColor=236f78" alt="Forks" />
+    <a href="https://github.com/tubecreate/zhiying">
+        <img src="https://img.shields.io/github/forks/tubecreate/zhiying?style=for-the-badge&color=1e7b85&labelColor=236f78" alt="Forks" />
     </a>
-    <a href="https://github.com/tubecreate/tubecli/blob/main/LICENSE">
+    <a href="https://github.com/tubecreate/zhiying/blob/main/LICENSE">
         <img src="https://img.shields.io/badge/LICENSE-MIT-00897b?style=for-the-badge&labelColor=333333" alt="License" />
     </a>
 </p>
@@ -31,7 +31,7 @@
 
 ## 🌟 核心理念与三大矩阵
 
-由 TubeCLI 引领的智能终端架构彻底改变了 AI 行事的维度。我们将其拆分为以下三个极其强大的功能矩阵：
+由 ZhiYing 引领的智能终端架构彻底改变了 AI 行事的维度。我们将其拆分为以下三个极其强大的功能矩阵：
 
 ### 🌐 1. Agents Browser (智能体浏览器矩阵)
 不再受限于普通 API！通过 **Agents Browser** 环境映射集，我们允许 AI Agents 获取、启动并控制独立沙箱浏览器环境 (Browser Profiles)。具备高度拟真的指纹克隆 (Fingerprints)、原生级多开以及自动绕过反爬机制的强力穿透。无论你是挂载自动多端社媒运营、批量读取本地或网页内容，Agents 从此具备了全自动巡航互联网的能力（内嵌免代理与 TOTP 2FA 登录）。
@@ -57,22 +57,22 @@
 
 ### 1. 克隆代码与快速安装
 ```bash
-git clone https://github.com/tubecreate/tubecli.git
-cd tubecli
+git clone https://github.com/tubecreate/zhiying.git
+cd zhiying
 pip install -e .
 ```
 
 ### 2. 初始化核心系统工作区
 只需执行该命令，ZhiYing 内核将会被写入电脑本地进行数据化装载与编译模块，拉取相关的核心内置执行库（如 `webui`, `browser`, `studio3d` 等）：
 ```bash
-tubecli init --lang zh
+zhiying init --lang zh
 ```
-*(一旦执行成功，您可以全天候随时敲入 `tubecli` 弹出中文大盘面)*
+*(一旦执行成功，您可以全天候随时敲入 `zhiying` 弹出中文大盘面)*
 
 ### 3. 点火激活终端大屏 (Web Dashboard)
 后台启动控制服务器。一旦启动，CLI 变身超级引擎服务：
 ```bash
-tubecli api start --port 5295
+zhiying api start --port 5295
 ```
 直接利用任一现代浏览器访问控制台： **http://localhost:5295/dashboard**
 
@@ -85,31 +85,31 @@ tubecli api start --port 5295
 
 ### 组织你的 Agents (Agent Management)
 ```bash
-tubecli agent create "财务专员" --description "负责整理发票与核算"
-tubecli agent list
-tubecli agent show <id>
-tubecli agent delete <id>
+zhiying agent create "财务专员" --description "负责整理发票与核算"
+zhiying agent list
+zhiying agent show <id>
+zhiying agent delete <id>
 ```
 
 ### 发号施令 (Skill Execution)
 ```bash
-tubecli skill list
-tubecli skill run "一键智能摘要总结" --input "贴入超过10万字的长文本..."
+zhiying skill list
+zhiying skill run "一键智能摘要总结" --input "贴入超过10万字的长文本..."
 ```
 
 ### 后台编排与接口调用 (Workflow & APIs)
 ```bash
-tubecli api start --port 5295
-tubecli api stop
-tubecli workflow run <指向_某处_workflow_流文件.json>
+zhiying api start --port 5295
+zhiying api stop
+zhiying workflow run <指向_某处_workflow_流文件.json>
 ```
 
 ### 广袤插件海洋 (Extensions & Market)
 ```bash
-tubecli extension list
-tubecli extension enable webui
-tubecli market search "seo优化"
-tubecli market install "seo-analyzer"
+zhiying extension list
+zhiying extension enable webui
+zhiying market search "seo优化"
+zhiying market install "seo-analyzer"
 ```
 
 ---
@@ -117,8 +117,8 @@ tubecli market install "seo-analyzer"
 ## 🧠 大局架空全景鸟瞰
 
 ```text
-tubecli/
-├── tubecli/           # 整个体系的发动机机核
+zhiying/
+├── zhiying/           # 整个体系的发动机机核
 │   ├── api/           # 高并发 REST API 发信器 (FastAPI驱动)
 │   ├── cli/           # Shell 壳指令中枢
 │   ├── core/          # 大脑黑盒与业务逻辑闭环
