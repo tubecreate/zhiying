@@ -2,7 +2,7 @@ import axios from 'axios';
 import path from 'path';
 import fs from 'fs-extra';
 
-const LOCAL_AI_URL = 'http://localhost:5295/api/v1/localai/generate';
+const LOCAL_AI_URL = 'http://localhost:2516/api/v1/localai/generate';
 const SCREENSHOT_DIR = path.resolve(process.cwd(), 'screenshots');
 
 // Ensure screenshot directory exists

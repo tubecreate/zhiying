@@ -13,6 +13,43 @@ from .story_api import story_router
 router.include_router(story_router)
 
 
+def _find_sheets_manager_dir():
+    from zhiying.config import DATA_DIR
+    import os
+    ext_base = os.path.join(DATA_DIR, "extensions_external")
+    if not os.path.isdir(ext_base): return None
+    exact = os.path.join(ext_base, "sheets_manager")
+    if os.path.isdir(exact): return exact
+    for entry in os.listdir(ext_base):
+        if entry.startswith("sheets_manager__") and os.path.isdir(os.path.join(ext_base, entry)):
+            return os.path.join(ext_base, entry)
+    return None
+
+@router.get("/sheets_manager")
+@router.get("/sheets-manager")
+async def sheets_manager_page():
+    sm_dir = _find_sheets_manager_dir()
+    import os
+    if sm_dir:
+        html_file = os.path.join(sm_dir, "static", "sheets_manager.html")
+        from fastapi.responses import FileResponse
+        if os.path.exists(html_file):
+            return FileResponse(html_file)
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(content='''<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Not Installed</title></head><body style="color:white;background:black;"><h1>Sheets Manager extension not found.</h1><a href="/dashboard">Back</a></body></html>''', status_code=200)
+
+@router.get("/sheets_manager-static/{filename:path}")
+@router.get("/sheets-manager-static/{filename:path}")
+async def serve_sheets_manager_static(filename: str):
+    sm_dir = _find_sheets_manager_dir()
+    import os
+    if sm_dir:
+        filepath = os.path.join(sm_dir, "static", filename)
+        from fastapi.responses import FileResponse
+        if os.path.exists(filepath):
+            return FileResponse(filepath)
+    return {"error": f"File {filename} not found"}
+
 @router.get("/dashboard")
 async def dashboard():
     index = os.path.join(STATIC_DIR, "index.html")

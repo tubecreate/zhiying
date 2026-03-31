@@ -17,7 +17,7 @@ LOGS_DIR = DATA_DIR / "logs"
 EXTENSIONS_EXTERNAL_DIR = DATA_DIR / "extensions_external"
 
 # ── Defaults ─────────────────────────────────────────────────────────
-DEFAULT_API_PORT = 5295
+DEFAULT_API_PORT = 2516
 DEFAULT_AI_MODEL = "qwen:latest"
 OLLAMA_BASE_URL = "http://localhost:11434"
 GIT_REPO_URL = "https://github.com/tubecreate/zhiying.git"

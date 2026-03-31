@@ -296,7 +296,7 @@ DEFAULT_SKILLS: List[Dict] = [
                     "type": "api_request",
                     "label": "⚡ Gọi API tạo Team",
                     "config": {
-                        "url": "http://localhost:5295/api/v1/studio3d/quick-team",
+                        "url": "http://localhost:2516/api/v1/studio3d/quick-team",
                         "method": "POST",
                         "headers": {"Content-Type": "application/json"},
                     },

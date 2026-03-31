@@ -18,7 +18,7 @@ async function fetchTotpCode(twoFactorCodes) {
     const encoded = encodeURIComponent(cleanSecret);
     
     // Load config if exists
-    let apiUrl = 'http://localhost:5295/api/v1/browser/2fa?secret=';
+    let apiUrl = 'http://localhost:2516/api/v1/browser/2fa?secret=';
     try {
       const configPath = path.join(process.cwd(), '..', '.cache', 'browser_config.json');
       if (fs.existsSync(configPath)) {

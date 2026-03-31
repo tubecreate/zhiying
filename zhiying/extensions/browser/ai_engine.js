@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const LOCAL_AI_URL = 'http://localhost:5295/api/v1/localai/chat/completions';
+const LOCAL_AI_URL = 'http://localhost:2516/api/v1/localai/chat/completions';
 
 /**
  * AI Engine to map natural language prompts to browser action sequences.
