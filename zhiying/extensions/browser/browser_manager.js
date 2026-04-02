@@ -324,8 +324,8 @@ export class BrowserManager {
         
         // Explicitly configure profile to NOT load proxy from storage
         // This ensures that if we provided a proxy, it's used. If we didn't, NO proxy is used.
-        // We also handle fingerprint manually, so loadFingerprint: false is safer too.
-        plugin.useProfile(profilePath, { loadProxy: false, loadFingerprint: false });
+        // NOTE: We DO NOT call plugin.useProfile() here because it conflicts with launchPersistentContext 
+        // and causes Google to show "Cookies are disabled" due to dual profile management.
 
         // LAUNCH RETRY LOGIC (Specifically for "Failed to get proxy ip")
         let launchAttempt = 1;
@@ -336,8 +336,7 @@ export class BrowserManager {
             try {
                 const context = await plugin.launchPersistentContext(profilePath, {
                     headless,
-                    args: launchArgs,
-                    userDataDir: profilePath
+                    args: launchArgs
                 });
                 return context;
             } catch (e) {

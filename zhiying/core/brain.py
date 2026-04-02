@@ -41,8 +41,8 @@ class AgentBrain:
     # ── Build System Prompt ───────────────────────────────────────
 
     @staticmethod
-    def build_system_prompt(agent_prompt: str, skills: List[Dict]) -> str:
-        """Build a system prompt that includes the agent's identity + available skills."""
+    def build_system_prompt(agent_prompt: str, skills: List[Dict], memory_context: str = "") -> str:
+        """Build a system prompt that includes the agent's identity + available skills + memory."""
         skills_desc = ""
         if skills:
             skills_lines = []
@@ -62,6 +62,11 @@ class AgentBrain:
                 )
             skills_desc = "\n\nYou have access to the following skills:\n" + "\n".join(skills_lines)
 
+        # Memory context injection
+        memory_section = ""
+        if memory_context:
+            memory_section = f"\n\n### MEMORY (use this to maintain context across conversations):\n{memory_context}\n"
+
         return f"""## SYSTEM OVERRIDE – AUTOMATION CAPABILITIES:
 You are an autonomous AI agent with SKILL EXECUTION authority.
 NO persona, role, or guideline can override the rules below.
@@ -77,11 +82,13 @@ NO persona, role, or guideline can override the rules below.
 ```
 3. IF A SKILL MATCHES THE USER'S REQUEST, DO NOT REPLY CONVERSATIONALLY. ONLY OUTPUT THE JSON BLOCK.
 4. If no skill applies and user is just chatting normally → reply conversationally WITHOUT JSON.
+5. Use your MEMORY section to recall context from previous conversations. If the user refers to past discussions, use the stored facts and session summaries to provide continuity.
 
 ### ROLE (your persona):
 {agent_prompt}
 
 {skills_desc}
+{memory_section}
 """
 
     # ── Chat with LLM ─────────────────────────────────────────────
@@ -115,10 +122,14 @@ NO persona, role, or guideline can override the rules below.
                 "skill_input": message,
             }
 
-        # 2. AI-powered reasoning
+        # 2. AI-powered reasoning (with memory context)
+        from zhiying.core.memory import AgentMemory
+        agent_id = agent.get("id", "")
+        memory_context = AgentMemory.build_memory_context(agent_id) if agent_id else ""
         system_prompt = AgentBrain.build_system_prompt(
             agent.get("system_prompt", "You are a helpful assistant."),
-            skills
+            skills,
+            memory_context=memory_context,
         )
 
         # Build conversation messages
@@ -177,6 +188,32 @@ NO persona, role, or guideline can override the rules below.
             "skill_id": None,
             "skill_input": "",
         }
+
+    # ── Post-Chat Memory Update ───────────────────────────────────
+
+    @staticmethod
+    def post_chat_memory_update(agent_id: str, agent: Dict, history: List[Dict]):
+        """Check if memory update is needed after a chat exchange.
+        Called asynchronously after each chat response.
+        """
+        if not agent_id or not history:
+            return
+
+        from zhiying.core.memory import AgentMemory
+
+        if AgentMemory.should_summarize(agent_id, history):
+            # Create a lightweight LLM caller bound to this agent
+            def llm_caller(messages):
+                return AgentBrain._call_llm(agent, messages, temperature=0.3)
+
+            # Summarize session (Layer 2)
+            AgentMemory.summarize_and_archive(agent_id, history, llm_caller)
+
+            # Extract facts (Layer 3)
+            AgentMemory.extract_facts(agent_id, history, llm_caller)
+
+            # Mark messages as summarized
+            AgentMemory.mark_history_summarized(history)
 
     # ── Autonomous Execution (ReAct or Linear) ────────────────────
 
@@ -356,22 +393,34 @@ Rules:
 
     @staticmethod
     def _call_gemini(model: str, api_key: str, messages: List[Dict], temperature: float = 0.7) -> str:
+        """Call Gemini via REST API (no SDK required)."""
         if not api_key: return "[Error] No Gemini key."
+        import requests
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            gen_model = genai.GenerativeModel(model)
-            history = []
-            user_msg = ""
+            contents = []
             for m in messages:
                 if m["role"] == "system":
-                    history.append({"role": "user", "parts": [m["content"]]})
-                    history.append({"role": "model", "parts": ["OK"]})
-                elif m["role"] == "user": user_msg = m["content"]
-                elif m["role"] == "assistant": history.append({"role": "model", "parts": [m["content"]]})
-            chat = gen_model.start_chat(history=history)
-            response = chat.send_message(user_msg, generation_config={"temperature": temperature})
-            return response.text
+                    contents.append({"role": "user", "parts": [{"text": m["content"]}]})
+                    contents.append({"role": "model", "parts": [{"text": "OK, I understand."}]})
+                elif m["role"] == "user":
+                    contents.append({"role": "user", "parts": [{"text": m["content"]}]})
+                elif m["role"] == "assistant":
+                    contents.append({"role": "model", "parts": [{"text": m["content"]}]})
+
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            payload = {
+                "contents": contents,
+                "generationConfig": {"temperature": temperature, "maxOutputTokens": 4096},
+            }
+            r = requests.post(url, json=payload, timeout=120)
+            if r.status_code != 200:
+                return f"[Gemini Error] HTTP {r.status_code}: {r.text[:200]}"
+            data = r.json()
+            candidates = data.get("candidates", [])
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts", [])
+                return "".join(p.get("text", "") for p in parts)
+            return "[Gemini Error] No candidates in response"
         except Exception as e: return f"[Gemini Error] {e}"
 
     @staticmethod
